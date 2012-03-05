@@ -58,7 +58,7 @@ class Hiera
                 mysql_database=Config[:mysql][:database]
 
                 dbh = Mysql.new(mysql_host, mysql_user, mysql_pass, mysql_database)
-                dhb.reconnect = true
+                dbh.reconnect = true
                 
                 res = dbh.query(sql)
                 Hiera.debug("Mysql Query returned #{res.num_rows} rows")
