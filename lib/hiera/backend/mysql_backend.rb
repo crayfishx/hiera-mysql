@@ -6,7 +6,13 @@ class Hiera
     module Backend
         class Mysql_backend
             def initialize
-                require 'mysql'
+                begin
+                  require 'mysql'
+                rescue LoadError
+                  require 'rubygems'
+                  require 'mysql'
+                end
+                
                 Hiera.debug("mysql_backend initialized")
                 mysql_host = Config[:mysql][:host]
             end
@@ -52,6 +58,8 @@ class Hiera
                 mysql_database=Config[:mysql][:database]
 
                 dbh = Mysql.new(mysql_host, mysql_user, mysql_pass, mysql_database)
+                dhb.reconnect = true
+                
                 res = dbh.query(sql)
                 Hiera.debug("Mysql Query returned #{res.num_rows} rows")
 
