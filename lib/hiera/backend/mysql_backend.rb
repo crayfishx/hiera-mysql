@@ -14,10 +14,9 @@ class Hiera
                 end
                 
                 Hiera.debug("mysql_backend initialized")
-                mysql_host = Config[:mysql][:host]
             end
             def lookup(key, scope, order_override, resolution_type)
-                Hiera.debug("loaded mysql backend")
+                Hiera.debug("mysql_backend invoked lookup")
 
 
                 # Parse the mysql query from the config, we also pass in key
