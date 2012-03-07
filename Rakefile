@@ -3,7 +3,7 @@ require 'rake/gempackagetask'
 
 spec = Gem::Specification.new do |gem|
     gem.name = "hiera-mysql"
-    gem.version = "0.1.0"
+    gem.version = "0.1.1"
     gem.summary = "MySQL backend for Hiera"
     gem.email = "craig@craigdunn.org"
     gem.author = "Craig Dunn"
