@@ -1,3 +1,18 @@
+IMPORTANT
+=========
+
+If you are planning to use hiera-mysql with Puppet, please be aware of this issue with hiera  0.3.0 and lower
+
+https://github.com/crayfishx/hiera-mysql/issues/2
+
+hiera-mysql will work with the upcoming 0.3.1 release of hiera, but until then you will have to apply the commit in:
+
+http://projects.puppetlabs.com/issues/13641
+
+A new hiera-mysql gem will be release to co-incide with the fixed hiera one when it comes out.
+
+ 
+
 Introduction
 ============
 
