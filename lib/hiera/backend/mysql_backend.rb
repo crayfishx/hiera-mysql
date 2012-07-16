@@ -36,6 +36,10 @@ class Hiera
                             results.each do |ritem|
                                 answer << Backend.parse_answer(ritem, scope)
                             end
+                        when :hash
+                            results.each do |ritem|
+                                answer[Backend.parse_answer(ritem, scope)] = Hash.new
+                            end
                         else
                             answer = Backend.parse_answer(results[0], scope)
                         end
