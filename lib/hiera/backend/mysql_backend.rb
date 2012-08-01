@@ -12,7 +12,7 @@ class Hiera
                   require 'rubygems'
                   require 'mysql'
                 end
-                
+
                 Hiera.debug("mysql_backend initialized")
             end
             def lookup(key, scope, order_override, resolution_type)
@@ -26,7 +26,15 @@ class Hiera
                 mysql_query = Backend.parse_string(Config[:mysql][:query], scope, { "key" => key })
 
 
-                answer = Backend.empty_answer(resolution_type)
+                case resolution_type
+                  when :array
+                    answer = []
+                  when :hash
+                    answer = {}
+                  else
+                    answer = nil
+                end
+
                 Hiera.debug("resolution type is #{resolution_type}")
 
                 results = query(mysql_query)
@@ -35,6 +43,10 @@ class Hiera
                         when :array
                             results.each do |ritem|
                                 answer << Backend.parse_answer(ritem, scope)
+                            end
+                        when :hash
+                            results.each do |ritem|
+                                answer[Backend.parse_answer(ritem, scope)] = Hash.new
                             end
                         else
                             answer = Backend.parse_answer(results[0], scope)
