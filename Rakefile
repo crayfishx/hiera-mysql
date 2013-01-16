@@ -3,7 +3,7 @@ require 'rake/gempackagetask'
 
 spec = Gem::Specification.new do |gem|
     gem.name = "hiera-mysql"
-    gem.version = "0.1.1"
+    gem.version = "0.2.0"
     gem.summary = "MySQL backend for Hiera"
     gem.email = "craig@craigdunn.org"
     gem.author = "Craig Dunn"
@@ -11,7 +11,6 @@ spec = Gem::Specification.new do |gem|
     gem.description = "Hiera back end for retrieving configuration values from MySQL"
     gem.require_path = "lib"
     gem.files = FileList["lib/**/*"].to_a
-    gem.add_dependency('hiera', '>=0.2.0')
     gem.add_dependency('mysql')
 end
 
