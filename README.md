@@ -3,6 +3,15 @@ IMPORTANT
 
 Requires hiera-puppet 1.0.0 or above
 
+Installation
+============
+
+`gem install hiera-mysql`
+
+or
+
+`puppet module install crayfishx/hiera_mysql`
+
 
 Introduction
 ============
