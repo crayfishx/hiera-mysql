@@ -44,11 +44,27 @@ Here is a sample hiera.yaml file that will work with mysql
 
 </pre>
 
+:query: can be either a string or an array - if it's an array then each query is executed in order (similar to the :hierarchy: configuration parameter for the YAML backend.  So the above could be configured as
+
+<pre>
+    :query:
+      - SELECT val FROM configdata WHERE var='%{key}' AND environment='%{env}'
+      - SELECT val FROM configdata WHERE var='%{key}' AND location='%{location}'
+      - SELECT val FROM configdata WHERE var='%{key}' AND environment='common'
+</pre>
+
+Results
+=======
+
+* `hiera()` will run each query and return the first element of the first row returned.
+
+* `hiera_array()` will iterate through each query and return an array of the first element of _every_ row returned from all the queries
+
+
 Todo
 ====
 
 - Support for hashes to facilitate selecting more than one column
-- Support for multiple SQL queries (like :hierarchy:)
 - Better MySQL error/exception handling
 
 
