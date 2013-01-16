@@ -1,17 +1,8 @@
 IMPORTANT
 =========
 
-If you are planning to use hiera-mysql with Puppet, please be aware of this issue with hiera  0.3.0 and lower
+Requires hiera-puppet 1.0.0 or above
 
-https://github.com/crayfishx/hiera-mysql/issues/2
-
-hiera-mysql will work with the upcoming 0.3.1 release of hiera, but until then you will have to apply the commit in:
-
-http://projects.puppetlabs.com/issues/13641
-
-A new hiera-mysql gem will be release to co-incide with the fixed hiera one when it comes out.
-
- 
 
 Introduction
 ============
@@ -28,7 +19,8 @@ Here is a sample hiera.yaml file that will work with mysql
 
 <pre>
 ---
-:backends: - mysql
+:backends: 
+    - mysql
 
 :mysql:
     :host: localhost
@@ -85,7 +77,6 @@ DEBUG: Wed Oct 31 03:35:49 +0000 2012: Mysql Query returned 4 rows
 Todo
 ====
 
-- Support for hashes to facilitate selecting more than one column
 - Better MySQL error/exception handling
 
 
