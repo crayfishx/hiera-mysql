@@ -36,8 +36,8 @@ class Hiera
                   unless results.empty?
                     case resolution_type
                       when :array
+                        answer ||= []
                         results.each do |ritem|
-                          answer ||= []
                           answer << Backend.parse_answer(ritem, scope)
                         end
                       else
@@ -69,9 +69,17 @@ class Hiera
                 # Currently we'll just return the first element of each row, a future
                 # enhancement would be to make this easily support hashes so you can do
                 # select foo,bar from table
-                res.each do |row|
+                #
+                if res.num_fields < 2
+                  res.each do |row|
                     Hiera.debug("Mysql value : #{row[0]}")
                     data << row[0]
+                  end
+
+                else
+                  res.each_hash do |row|
+                    data << row
+                  end
                 end
 
                 return data

@@ -53,13 +53,34 @@ Here is a sample hiera.yaml file that will work with mysql
       - SELECT val FROM configdata WHERE var='%{key}' AND environment='common'
 </pre>
 
-Results
-=======
+Results and data types
+======================
 
-* `hiera()` will run each query and return the first element of the first row returned.
 
-* `hiera_array()` will iterate through each query and return an array of the first element of _every_ row returned from all the queries
 
+When looking up a single column (eg: SELECT foo FROM bar):
+
+* `hiera()` will run iterate through each query and give back the first row returned.
+
+* `hiera_array()` will iterate through each query and return an array of the  _every_ row returned from all the queries
+
+When looking up multiple columns (eg: SELECT foo,bar FROM baz):
+
+* `hiera()` will iterate through each query and return a _hash_ of the first row as `{column => value}` eg:
+
+<pre>
+DEBUG: Wed Oct 31 03:35:41 +0000 2012: Executing SQL Query: SELECT val,id FROM configuration WHERE var='color' AND env='common' OR env='qa'
+DEBUG: Wed Oct 31 03:35:41 +0000 2012: Mysql Query returned 4 rows
+{"id"=>"5", "val"=>"pink"}
+</pre>
+
+* `hiera_array()` will iterate through each query and return _an array of hashes_ for every row returned from all queries, eg:
+
+<pre>
+DEBUG: Wed Oct 31 03:35:49 +0000 2012: Executing SQL Query: SELECT val,id FROM configuration WHERE var='color' AND env='common' OR env='qa'
+DEBUG: Wed Oct 31 03:35:49 +0000 2012: Mysql Query returned 4 rows
+[{"val"=>"pink", "id"=>"5"}, {"val"=>"red", "id"=>"6"}, {"val"=>"rose", "id"=>"7"}, {"val"=>"plain white", "id"=>"10"}]
+</pre>
 
 Todo
 ====
