@@ -42,10 +42,10 @@ class Hiera
                         end
                       else
                       if results.size == 1
-    					 answer = Backend.parse_answer(results[0], scope)
+                        answer = Backend.parse_answer(results[0], scope)
                         else
                          answer ||= [] 
-						 results.each do |ritem| 
+			 results.each do |ritem| 
                          answer << Backend.parse_answer(ritem, scope)
                         end
                        end
