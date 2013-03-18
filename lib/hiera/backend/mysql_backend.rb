@@ -58,9 +58,14 @@ class Hiera
                 mysql_user=Config[:mysql][:user]
                 mysql_pass=Config[:mysql][:pass]
                 mysql_database=Config[:mysql][:database]
+                mysql_charset=Config[:mysql][:charset]
 
                 dbh = Mysql.new(mysql_host, mysql_user, mysql_pass, mysql_database)
                 dbh.reconnect = true
+
+                if not mysql_charset.nil?
+                  dbh.query("SET names #{mysql_charset}")
+                end
 
                 res = dbh.query(sql)
                 Hiera.debug("Mysql Query returned #{res.num_rows} rows")

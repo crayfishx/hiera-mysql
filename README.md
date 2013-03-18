@@ -54,6 +54,14 @@ Here is a sample hiera.yaml file that will work with mysql
       - SELECT val FROM configdata WHERE var='%{key}' AND environment='common'
 </pre>
 
+If you want to use a special character set with the query you can set the :charset: variable in the :mysql: section
+
+<pre>
+:mysql:
+    ...
+    :charset: utf8
+</pre>
+
 Results and data types
 ======================
 
