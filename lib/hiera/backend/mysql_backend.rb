@@ -41,7 +41,14 @@ class Hiera
                           answer << Backend.parse_answer(ritem, scope)
                         end
                       else
-                       answer = Backend.parse_answer(results[0], scope)
+                      if results.size == 1
+                        answer = Backend.parse_answer(results[0], scope)
+                        else
+                          answer ||= [] 
+                          results.each do |ritem| 
+                          answer << Backend.parse_answer(ritem, scope)
+                        end
+                       end
                        break
                     end
                   end
@@ -58,9 +65,14 @@ class Hiera
                 mysql_user=Config[:mysql][:user]
                 mysql_pass=Config[:mysql][:pass]
                 mysql_database=Config[:mysql][:database]
+                mysql_charset=Config[:mysql][:charset]
 
                 dbh = Mysql.new(mysql_host, mysql_user, mysql_pass, mysql_database)
                 dbh.reconnect = true
+
+                if not mysql_charset.nil?
+                  dbh.query("SET names #{mysql_charset}")
+                end
 
                 res = dbh.query(sql)
                 Hiera.debug("Mysql Query returned #{res.num_rows} rows")
