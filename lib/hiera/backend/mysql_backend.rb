@@ -25,27 +25,35 @@ class Hiera
                 # Parse the mysql query from the config, we also pass in key
                 # to extra_data so this can be interpreted into the query 
                 # string
-                #
-                queries = [ Config[:mysql][:query] ].flatten
-                queries.map! { |q| Backend.parse_string(q, scope, {"key" => key}) }
+                
+                if ((Config[:mysql][:keyregex].class == Regexp && key =~ Config[:mysql][:keyregex]) || Config[:mysql][:keyregex].class == NilClass)
+                  #A regular expression was provided and matched the key, OR the OPTIONAL keyregex parameter was not specified.
+                  queries = [ Config[:mysql][:query] ].flatten
+                  queries.map! { |q| Backend.parse_string(q, scope, {"key" => key}) }
 
-                queries.each do |mysql_query|
+                  queries.each do |mysql_query|
 
-                  results = query(mysql_query)
+                    results = query(mysql_query)
 
-                  unless results.empty?
-                    case resolution_type
-                      when :array
-                        answer ||= []
-                        results.each do |ritem|
-                          answer << Backend.parse_answer(ritem, scope)
-                        end
-                      else
-                       answer = Backend.parse_answer(results[0], scope)
-                       break
+                    unless results.empty?
+                      case resolution_type
+                        when :array
+                          answer ||= []
+                          results.each do |ritem|
+                            answer << Backend.parse_answer(ritem, scope)
+                          end
+                        else
+                         answer = Backend.parse_answer(results[0], scope)
+                         break
+                      end
                     end
                   end
-
+                else
+                  if (Config[:mysql][:keyregex].class == Regexp )
+                    Hiera.debug("skipping lookup as key does not match regexp")
+                  else
+                    Hiera.warn("keyregex must be a ruby style regular expression")
+                  end
                 end
               answer
             end

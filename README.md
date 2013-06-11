@@ -38,6 +38,7 @@ Here is a sample hiera.yaml file that will work with mysql
     :database: config
 
     :query: SELECT val FROM configdata WHERE var='%{key}' AND environment='%{env}'
+    :keyregex: !ruby/regexp '/mymodule:/'
 
 
 :logger: console
@@ -54,6 +55,7 @@ Here is a sample hiera.yaml file that will work with mysql
       - SELECT val FROM configdata WHERE var='%{key}' AND environment='common'
 </pre>
 
+:keyregex: is an optional parameter that can be used to specify a regular expression that the key must match in order for the mysql lookup to be invoked.  In the sample hiera.yaml, the mysql backend is only used to lookup keys from a specific module.
 Results and data types
 ======================
 
