@@ -7,10 +7,12 @@ class Hiera
         class Mysql_backend
             def initialize
                 begin
-                  require 'mysql'
+                  require 'jdbc/mysql'
+                  require 'java'
+                  #require 'mysql'
                 rescue LoadError
-                  require 'rubygems'
-                  require 'mysql'
+                  #require 'rubygems'
+                  #require 'mysql'
                 end
 
                 Hiera.debug("mysql_backend initialized")
@@ -58,31 +60,40 @@ class Hiera
                 mysql_user=Config[:mysql][:user]
                 mysql_pass=Config[:mysql][:pass]
                 mysql_database=Config[:mysql][:database]
+                Jdbc::MySQL.load_driver
+                
+                url = "jdbc:mysql://#{mysql_host}/#{mysql_database}"
 
-                dbh = Mysql.new(mysql_host, mysql_user, mysql_pass, mysql_database)
-                dbh.reconnect = true
+                # Here be dragons....
+                conn = java.sql.DriverManager.get_connection(url, mysql_user, mysql_pass)
+                stmt = conn.create_statement
 
-                res = dbh.query(sql)
-                Hiera.debug("Mysql Query returned #{res.num_rows} rows")
-
-
-                # Currently we'll just return the first element of each row, a future
-                # enhancement would be to make this easily support hashes so you can do
-                # select foo,bar from table
-                #
-                if res.num_fields < 2
-                  res.each do |row|
-                    Hiera.debug("Mysql value : #{row[0]}")
-                    data << row[0]
-                  end
-
-                else
-                  res.each_hash do |row|
-                    data << row
-                  end
-                end
-
-                return data
+##                dbh = Mysql.new(mysql_host, mysql_user, mysql_pass, mysql_database)
+##                dbh.reconnect = true
+##
+##                res = dbh.execute_query(sql)
+                  res = stmt.execute_query(sql)
+##                Hiera.debug("Mysql Query returned #{res.num_rows} rows")
+##
+##
+##                # Currently we'll just return the first element of each row, a future
+##                # enhancement would be to make this easily support hashes so you can do
+##                # select foo,bar from table
+##                #
+##                if res.num_fields < 2
+##                  res.each do |row|
+##                    Hiera.debug("Mysql value : #{row[0]}")
+##                    data << row[0]
+##                  end
+##
+##                else
+##                  res.each_hash do |row|
+##                    data << row
+##                  end
+##                end
+##
+##                return data
+               return [ 'dummy data' ]
             end
         end
     end
