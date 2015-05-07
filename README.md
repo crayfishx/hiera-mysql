@@ -114,6 +114,12 @@ DEBUG: Wed Oct 31 03:35:49 +0000 2012: Mysql Query returned 4 rows
 Release Notes
 =============
 
+_2.0.0_:
+* Introduction of jRuby JDBC support for Puppet 4.0
+
+_1.0.0_:
+* No major changes
+
 _0.2.0_:
 * Added array support
 * Added multi-column hashes
