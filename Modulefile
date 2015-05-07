@@ -1,5 +1,5 @@
 name    'crayfishx-hiera_mysql'
-version '0.2.0'
+version '2.0.0'
 source 'http://github.com/crayfishx/hiera-mysql'
 author 'Craig Dunn'
 license 'Apache License, Version 2.0'

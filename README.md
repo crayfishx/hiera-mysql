@@ -18,7 +18,7 @@ On Puppet 4.0 for jRuby (puppetserver)
 
 *IMPORTANT NOTE* hiera-mysql also ships as a Puppet module, which can be synced with the puppet master using pluginsync, if you are using this model, please read [SERVER-571](https://tickets.puppetlabs.com/browse/SERVER-571) - At the time of 2.0.0 release no decision has been made on long term support for shipping hiera backends as modules.
 
-`puppet module install crayfishx/hiera-mysql`
+`puppet module install crayfishx/hiera_mysql`
 
 
 Dependancies
