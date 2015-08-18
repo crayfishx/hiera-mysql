@@ -21,7 +21,7 @@ On Puppet 4.0 for jRuby (puppetserver)
 `puppet module install crayfishx/hiera_mysql`
 
 
-Dependancies
+Dependencies
 ============
 
 Hiera-mysql 1.0.0 and lower specifies a gem dependancy for the native mysql extensions (mysql).  2.0.0 supports both native C extensions and the jRuby JDBC and will load whichever library is suitable for the ruby it has been installed on.  When installing the gem within puppetserver (jRuby) for Puppet 4.0 the native C extensions cannot be compiled therefore we have dropped this as a hard gem dependancy and added it as user information (spec.requirements)
