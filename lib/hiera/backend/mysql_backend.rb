@@ -18,7 +18,6 @@ class Hiera
             require 'mysql'
           end
         end
-
         Hiera.debug("mysql_backend initialized")
         Hiera.debug("JDBC mode #{@use_jdbc}")
       end
@@ -39,9 +38,8 @@ class Hiera
         queries.map! { |q| Backend.parse_string(q, scope, {"key" => key}) }
 
         queries.each do |mysql_query|
-
+	 begin
           results = query(mysql_query)
-
           unless results.empty?
             case resolution_type
             when :array
@@ -50,10 +48,21 @@ class Hiera
                 answer << Backend.parse_answer(ritem, scope)
               end
             else
+	     if results.respond_to?(:has_key?)
               answer = Backend.parse_answer(results[0], scope)
+	     else
+		if results.length < 2
+                  answer = Backend.parse_answer(results[0], scope)
+		else
+                  answer = Backend.parse_answer(results, scope)
+		end
+	     end
               break
             end
           end
+	 rescue
+	  Hiera.debug("error: #{$!}#{mysql_query}")
+	 end
 
         end
         answer
