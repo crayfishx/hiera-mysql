@@ -61,6 +61,7 @@ Here is a sample hiera.yaml file that will work with mysql
 
 :mysql:
     :host: localhost
+    :port: 3306
     :user: root
     :pass: examplepassword
     :database: config
