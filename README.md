@@ -61,6 +61,7 @@ Here is a sample hiera.yaml file that will work with mysql
 
 :mysql:
     :host: localhost
+    :port: 3306
     :user: root
     :pass: examplepassword
     :database: config
@@ -80,6 +81,18 @@ Here is a sample hiera.yaml file that will work with mysql
       - SELECT val FROM configdata WHERE var='%{key}' AND environment='%{env}'
       - SELECT val FROM configdata WHERE var='%{key}' AND location='%{location}'
       - SELECT val FROM configdata WHERE var='%{key}' AND environment='common'
+</pre>
+
+And here is a sample table definition to be used with the hiera.yaml
+
+<pre>
+    create Table: CREATE TABLE `configdata` (
+      `id` int(11) NOT NULL AUTO_INCREMENT,
+      `var` varchar(255) NOT NULL,
+      `val` varchar(255) NOT NULL,
+      `env` varchar(255) NOT NULL,
+      PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8
 </pre>
 
 Results and data types

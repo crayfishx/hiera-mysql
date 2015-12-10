@@ -6,10 +6,22 @@ class Hiera
   module Backend
     class Mysql_backend
       def initialize
-        @use_jdbc = defined?(JRUBY_VERSION) ? true : false 
+        mysql_host=Config[:mysql][:host]
+        mysql_user=Config[:mysql][:user]
+        mysql_pass=Config[:mysql][:pass]
+        mysql_port=Config[:mysql][:port]
+        mysql_database=Config[:mysql][:database]
+
+        @use_jdbc = defined?(JRUBY_VERSION) ? true : false
         if @use_jdbc
           require 'jdbc/mysql'
           require 'java'
+          Jdbc::MySQL.load_driver
+          uri = "jdbc:mysql://#{mysql_host}:#{mysql_port}/#{mysql_database}"
+          props = java.util.Properties.new
+          props.set_property :user, mysql_user
+          props.set_property :password, mysql_pass
+          @conn = com.mysql.jdbc.Driver.new.connect(uri, props)
         else
           begin
             require 'mysql'
@@ -17,6 +29,9 @@ class Hiera
             require 'rubygems'
             require 'mysql'
           end
+          @conn = Mysql.new(mysql_host, mysql_user, mysql_pass, 
+                            mysql_database, mysql_port.to_i)
+          @conn.reconnect = true
         end
 
         Hiera.debug("mysql_backend initialized")
@@ -32,7 +47,7 @@ class Hiera
         answer = nil
 
         # Parse the mysql query from the config, we also pass in key
-        # to extra_data so this can be interpreted into the query 
+        # to extra_data so this can be interpreted into the query
         # string
         #
         queries = [ Config[:mysql][:query] ].flatten
@@ -61,27 +76,12 @@ class Hiera
 
       def query (sql)
         Hiera.debug("Executing SQL Query: #{sql}")
-
         data=[]
-        mysql_host=Config[:mysql][:host]
-        mysql_user=Config[:mysql][:user]
-        mysql_pass=Config[:mysql][:pass]
-        mysql_database=Config[:mysql][:database]
-
-
         if @use_jdbc
           #
           # JDBC connection handling, this will be run under jRuby
           #
-          Jdbc::MySQL.load_driver
-          url = "jdbc:mysql://#{mysql_host}:3306/#{mysql_database}"
-          props = java.util.Properties.new
-          props.set_property :user, mysql_user
-          props.set_property :password, mysql_pass
-
-          conn = com.mysql.jdbc.Driver.new.connect(url,props)
-          stmt = conn.create_statement
-
+          stmt = @conn.create_statement
           res = stmt.execute_query(sql)
           md = res.getMetaData
           numcols = md.getColumnCount
@@ -100,14 +100,14 @@ class Hiera
               data << row
             end
           end
+
+          stmt.close
+
         else
           #
           # Native mysql connection, for calls outside of jRuby
           #
-          dbh = Mysql.new(mysql_host, mysql_user, mysql_pass, mysql_database)
-          dbh.reconnect = true
-
-          res = dbh.query(sql)
+          res = @conn.query(sql)
           Hiera.debug("Mysql Query returned #{res.num_rows} rows")
 
           if res.num_fields < 2

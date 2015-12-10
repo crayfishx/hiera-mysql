@@ -1,9 +1,9 @@
 require 'rubygems'
-require 'rake/gempackagetask'
+require 'rubygems/package_task'
 
 spec = Gem::Specification.new do |gem|
     gem.name = "hiera-mysql"
-    gem.version = "2.0.0"
+    gem.version = "2.0.1"
     gem.summary = "MySQL backend for Hiera"
     gem.email = "craig@craigdunn.org"
     gem.author = "Craig Dunn"
@@ -15,7 +15,6 @@ spec = Gem::Specification.new do |gem|
     gem.requirements << 'jdbc-mysql'
 end
 
-Rake::GemPackageTask.new(spec) do |pkg|
+Gem::PackageTask.new(spec) do |pkg|
     pkg.need_tar = true
 end
-
