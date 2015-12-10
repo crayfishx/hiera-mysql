@@ -30,7 +30,7 @@ class Hiera
             require 'mysql'
           end
           @conn = Mysql.new(mysql_host, mysql_user, mysql_pass, 
-                            mysql_database, mysql_port)
+                            mysql_database, mysql_port.to_i)
           @conn.reconnect = true
         end
 
