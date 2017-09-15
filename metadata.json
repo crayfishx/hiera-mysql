@@ -1,0 +1,47 @@
+{
+  "name": "crayfishx-hiera_mysql",
+  "version": "3.0.0",
+  "author": "Craig Dunn",
+  "summary": "Hiera 5 backend to query data lookups over MySQL/MariaDB",
+  "license": "Apache 2.0",
+  "source": "https://github.com/crayfishx/hiera-mysql",
+  "project_page": "https://github.com/crayfishx/hiera-mysql",
+  "issues_url": "https://github.com/crayfishx/hiera-mysql/issues",
+  "tags": [ "mysql", "mariadb", "hiera", "hiera5" ],
+  "requirements": [
+    {
+       "name": "puppet",
+       "version_requirement": ">= 4.9.0 < 6.0.0"
+     }
+   ],
+  "operatingsystem_support": [
+    {
+      "operatingsystem": "Debian",
+      "operatingsystemrelease": [
+        "6",
+        "7",
+        "8",
+        "9"
+      ]
+    },
+    {
+      "operatingsystem": "Ubuntu",
+      "operatingsystemrelease": [
+        "12.04",
+        "14.04",
+        "16.04",
+      ]
+    },
+    {
+      "operatingsystem": "RedHat",
+      "operatingsystemrelease": [
+        "5",
+        "6",
+        "7"
+      ]
+    }
+  ],
+  "dependencies": [
+  ]
+}
+
