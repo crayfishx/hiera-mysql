@@ -101,8 +101,8 @@ hierarchy:
 #### Arrays
 The lookup_type method can return arrays.  By default, it will always return a string if one row is returned from the query, and will return an array when multiple rows are returned.  You can be more explicit by setting the `return` option in the `options` hash to:
 
-`array`: Always return an array, even if the query only returned one row.
-`first`: Always return the first row as a string, even if the query returned multiple rows.
+* `array`: Always return an array, even if the query only returned one row.
+* `first`: Always return the first row as a string, even if the query returned multiple rows.
 
 
 ### `data_hash`
