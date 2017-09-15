@@ -11,14 +11,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
+#
 # Class Mysql_backend
 # Description: MySQL back end to Hiera 5.
 # Author: Craig Dunn <craig@craigdunn.org>
 #
 #
 Puppet::Functions.create_function(:hiera_mysql) do
-  @use_jdbc = defined?(JRUBY_VERSION) ? true : false
-  if @use_jdbc
+
+  if defined?(JRUBY_VERISON)
     begin
       require 'java'
       require 'jdbc/mysql'
@@ -44,7 +46,6 @@ Puppet::Functions.create_function(:hiera_mysql) do
     param 'Puppet::LookupContext', :context
   end
 
-
   def mysql_data_hash(options, context)
     context.explain { "data_hash lookup with query: #{options['query']}" }
     results = query(options['query'], context, options)
@@ -65,7 +66,6 @@ Puppet::Functions.create_function(:hiera_mysql) do
     end
 
     context.explain { "MySQL Lookup with query: #{mysql_query}" }
-
     results = query(mysql_query, context, options)
 
     if results.empty?
@@ -84,8 +84,8 @@ Puppet::Functions.create_function(:hiera_mysql) do
     mysql_pass=options['password']
     mysql_database=options['database']
 
-
-    if @use_jdbc
+    
+    if defined?(JRUBY_VERSION)
       #
       # JDBC connection handling, this will be run under jRuby
       #
