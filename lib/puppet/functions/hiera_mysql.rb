@@ -17,7 +17,6 @@
 #
 #
 Puppet::Functions.create_function(:hiera_mysql) do
-  puts "LOADED"
   @use_jdbc = defined?(JRUBY_VERSION) ? true : false
   if @use_jdbc
     begin

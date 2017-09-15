@@ -2,35 +2,19 @@
 Installation
 ============
 
-On native system Ruby (not jRuby) for Puppet < 3.7
-
-`gem install hiera-mysql`
-
-
-On Puppet 4.0 for standard Ruby
-
-`/opt/puppetlabs/puppet/bin/gem install hiera-mysql`
-
-On Puppet 4.0 for jRuby (puppetserver)
-
-`/opt/puppetlabs/bin/puppetserver gem install hiera-mysql`
-
-
-*IMPORTANT NOTE* hiera-mysql also ships as a Puppet module, which can be synced with the puppet master using pluginsync, if you are using this model, please read [SERVER-571](https://tickets.puppetlabs.com/browse/SERVER-571) - At the time of 2.0.0 release no decision has been made on long term support for shipping hiera backends as modules.
-
 `puppet module install crayfishx/hiera_mysql`
 
 
 Dependencies
 ============
 
-Hiera-mysql 1.0.0 and lower specifies a gem dependancy for the native mysql extensions (mysql).  2.0.0 supports both native C extensions and the jRuby JDBC and will load whichever library is suitable for the ruby it has been installed on.  When installing the gem within puppetserver (jRuby) for Puppet 4.0 the native C extensions cannot be compiled therefore we have dropped this as a hard gem dependancy and added it as user information (spec.requirements)
+Hiera-mysql supports both native C extensions for use with standard ruby and the jRuby JDBC and will load whichever library is suitable for the ruby it has been installed on. This ensures that hiera-mysql operates under `puppet apply` which uses regular Ruby and also under `puppetserver` which implements jRuby.
 
-If you are installing Hiera-mysql under jRuby for Puppet 4.0 you will need to manually install the jdbc gem
+If you are using Hiera-mysql under jRuby for Puppet Server you will need to manually install the jdbc gem:
 
 `/opt/puppetlabs/bin/puppetserver gem install jdbc-mysql`
 
-If you are installing Hiera-mysql under standard ruby, you will need the mysql gem
+If you are using Hiera-mysql under standard ruby (eg: for puppet apply), you will need the mysql gem
 
 `/opt/puppetlabs/puppet/bin/gem install mysql`
 
@@ -38,8 +22,7 @@ If you are installing Hiera-mysql under standard ruby, you will need the mysql g
 Versioning
 ==========
 
-Hiera-mysql 0.2.0 was re-released as 1.0.0 - there are no significant changes between these two.  Looking back, 0.2.0 should probably have been a 1.0 release and the last major release was a very big change.  Rightly or wrongly I personally feel that 0.x to 1.x signifies a state of readyness rather than change, whereas 1.x to 2.x makes it clear there are likely to be breaking changes.  So with the introduction of the jRuby code I decided to re-release 0.2.0 as 1.0.0 and release the jRuby changes as 2.0.0.
-
+Hiera-mysql 2.0.0 is the legacy backend to Hiera 3.x and shipped as a rubygem.  Important fixes may still be contributed to the 2.x branch, however it's highly recommended that users switch to 3.x.  Hiera-mysql 3.0.0 is a complete refactor designed to work as a Hiera 5 backend, for users running Puppet 4.9 or higher.   Hiera-mysql 3.0.0 does not ship as a rubygem and should be used from the Puppet module.
 
 Introduction
 ============
@@ -50,93 +33,86 @@ Hiera is a configuration data store with pluggable back ends, hiera-mysql is a b
 Configuration
 =============
 
-hiera-mysql configuration is fairly simple.  The query specified in mysqlquery is parsed by Hiera to interpret any %{var} values specifed in the scope.  It also has the ability to interpret %{key} (the name of the value you're searching for) directly into the SQL string.
+There are two different ways to configure the mysql backend.  You can configure it as a `lookup_key` or `data_hash` backend.  The differences between these two types are [documented in the official Hiera docs](https://docs.puppet.com/puppet/5.1/hiera_custom_backends.html#three-kinds-of-backends).  `lookup_key` should be used to perform a MySQL query for each individual lookup request and return the value.   `data_hash` should be used to perform one MySQL query per catalog compilation that returns a key value map for all data values.  Examples of both methods can be found below.
 
-Here is a sample hiera.yaml file that will work with mysql
+### Example database
 
-<pre>
----
-:backends: 
-    - mysql
+In the following examples, the following database structure is being used;
 
-:mysql:
-    :host: localhost
-    :user: root
-    :pass: examplepassword
-    :database: config
+```
+MariaDB [config]> DESC configdata;
++-------------+-----------+------+-----+---------+----------------+
+| Field       | Type      | Null | Key | Default | Extra          |
++-------------+-----------+------+-----+---------+----------------+
+| id          | int(11)   | NO   | PRI | NULL    | auto_increment |
+| val         | char(255) | YES  |     | NULL    |                |
+| var         | char(255) | YES  |     | NULL    |                |
+| environment | char(255) | YES  |     | NULL    |                |
++-------------+-----------+------+-----+---------+----------------+
+4 rows in set (0.00 sec)
 
-    :query: SELECT val FROM configdata WHERE var='%{key}' AND environment='%{env}'
+MariaDB [config]> select * from configdata;
++----+-------------+---------------+-------------+
+| id | val         | var           | environment |
++----+-------------+---------------+-------------+
+|  1 | 192.168.0.1 | ntp::server   | production  |
+|  2 | 10.1.1.2    | ntp::server   | development |
+|  3 | Hello       | motd::message | production  |
++----+-------------+---------------+-------------+
+```
 
+### Hiera configuration
 
-:logger: console
+The hiera-mysql backend takes the following for the `options` hash of the Hiera configuration
 
-
-</pre>
-
-:query: can be either a string or an array - if it's an array then each query is executed in order (similar to the :hierarchy: configuration parameter for the YAML backend.  So the above could be configured as
-
-<pre>
-    :query:
-      - SELECT val FROM configdata WHERE var='%{key}' AND environment='%{env}'
-      - SELECT val FROM configdata WHERE var='%{key}' AND location='%{location}'
-      - SELECT val FROM configdata WHERE var='%{key}' AND environment='common'
-</pre>
-
-Results and data types
-======================
-
-
-
-When looking up a single column (eg: SELECT foo FROM bar):
-
-* `hiera()` will run iterate through each query and give back the first row returned.
-
-* `hiera_array()` will iterate through each query and return an array of the  _every_ row returned from all the queries
-
-When looking up multiple columns (eg: SELECT foo,bar FROM baz):
-
-* `hiera()` will iterate through each query and return a _hash_ of the first row as `{column => value}` eg:
-
-<pre>
-DEBUG: Wed Oct 31 03:35:41 +0000 2012: Executing SQL Query: SELECT val,id FROM configuration WHERE var='color' AND env='common' OR env='qa'
-DEBUG: Wed Oct 31 03:35:41 +0000 2012: Mysql Query returned 4 rows
-{"id"=>"5", "val"=>"pink"}
-</pre>
-
-* `hiera_array()` will iterate through each query and return _an array of hashes_ for every row returned from all queries, eg:
-
-<pre>
-DEBUG: Wed Oct 31 03:35:49 +0000 2012: Executing SQL Query: SELECT val,id FROM configuration WHERE var='color' AND env='common' OR env='qa'
-DEBUG: Wed Oct 31 03:35:49 +0000 2012: Mysql Query returned 4 rows
-[{"val"=>"pink", "id"=>"5"}, {"val"=>"red", "id"=>"6"}, {"val"=>"rose", "id"=>"7"}, {"val"=>"plain white", "id"=>"10"}]
-</pre>
-
-Release Notes
-=============
-
-_2.0.0_:
-* Introduction of jRuby JDBC support for Puppet 4.0
-
-_1.0.0_:
-* No major changes
-
-_0.2.0_:
-* Added array support
-* Added multi-column hashes
-* First Puppet Forge release
+* `host`: Hostname to connect to
+* `username`: Username to use for authentication
+* `password`: Password to use for authentication
+* `database`: Name of the MySQL database
+* `query`: The SQL query to run.  The special keyword `__KEY__` can be used to interpolate the lookup key into the query (only for lookup_key)
 
 
-Todo
-====
+### `lookup_key`
 
-- Better MySQL error/exception handling
+The `lookup_key` type defines a query that should be run for each lookup request and expects to return one value.  If the query returns multiple rows, then the first row will be returned.  `__KEY__` may be used in the query and will be interpolated as the lookup key.
 
+Example:
+
+```yaml
+hierarchy:
+  - name: "MySQL lookup"
+    lookup_key: hiera_mysql
+    options:
+      host: localhost
+      username: root
+      password: foobar
+      database: config
+      query: "SELECT val FROM configdata WHERE var='__KEY__' AND environment='%{environment}'"
+```
+
+### `data_hash`
+
+The `data_hash` type defines a query that should be run just once for each Puppet run.  The query should be one that returns rows of two columns, the first column matching the key and the second with the value.  Further column will be ignored.
+
+Example:
+
+```yaml
+hierarchy:
+  - name: "MySQL lookup"
+    data_hash: hiera_mysql
+    options:
+      host: localhost
+      username: root
+      password: foobar
+      database: config
+      query: "SELECT var,val FROM configdata WHERE environment='%{environment}'"
+```
 
 
 Contact
 =======
 
-* Author: Craig Dunn
+* Maintainer: Craig Dunn
 * Email: craig@craigdunn.org
 * Twitter: @crayfishX
 * IRC (Freenode): crayfishx
