@@ -77,6 +77,7 @@ The hiera-mysql backend takes the following for the `options` hash of the Hiera 
 * `password`: Password to use for authentication
 * `database`: Name of the MySQL database
 * `query`: The SQL query to run.  The special keyword `__KEY__` can be used to interpolate the lookup key into the query (only for lookup_key)
+* `return`: For use with the lookup_key type.  When set to `first` will always return the first row even if the query returned multiple, when set to `array` will always return an array even if the query only returned one row.
 
 
 ### `lookup_key`
@@ -96,6 +97,13 @@ hierarchy:
       database: config
       query: "SELECT val FROM configdata WHERE var='__KEY__' AND environment='%{environment}'"
 ```
+
+#### Arrays
+The lookup_type method can return arrays.  By default, it will always return a string if one row is returned from the query, and will return an array when multiple rows are returned.  You can be more explicit by setting the `return` option in the `options` hash to:
+
+`array`: Always return an array, even if the query only returned one row.
+`first`: Always return the first row as a string, even if the query returned multiple rows.
+
 
 ### `data_hash`
 

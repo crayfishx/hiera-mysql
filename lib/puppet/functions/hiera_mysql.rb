@@ -71,8 +71,9 @@ Puppet::Functions.create_function(:hiera_mysql) do
     if results.empty?
       context.not_found
     else
-      answer = results[0]
-      return answer
+      return results if options['return'] == 'array'
+      return results[0] if options['return'] == 'first'
+      return results.length > 1 ? results : results[0]
     end
   end
 
