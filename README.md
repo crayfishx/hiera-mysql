@@ -1,3 +1,10 @@
+Introduction
+============
+
+This is hiera-mysql for Hiera 5 users (Puppet 4.9+) - if you are running older versions please see the [2.x branch for the hiera-mysql Hiera 3 backend](https://github.com/crayfishx/hiera-mysql/tree/2.x)
+
+For more information on migrating to Hiera 5, [See the official documentation](https://docs.puppet.com/puppet/5.1/hiera_config_yaml_5.html)
+
 
 Installation
 ============
@@ -10,7 +17,7 @@ Dependencies
 
 Hiera-mysql supports both native C extensions for use with standard ruby and the jRuby JDBC and will load whichever library is suitable for the ruby it has been installed on. This ensures that hiera-mysql operates under `puppet apply` which uses regular Ruby and also under `puppetserver` which implements jRuby.
 
-If you are using Hiera-mysql under jRuby for Puppet Server you will need to manually install the jdbc gem:
+If you are using Hiera-mysql under jRuby for Puppet Server you will need to install the jdbc gem:
 
 `/opt/puppetlabs/bin/puppetserver gem install jdbc-mysql`
 
@@ -27,7 +34,7 @@ Hiera-mysql 2.0.0 is the legacy backend to Hiera 3.x and shipped as a rubygem.  
 Introduction
 ============
 
-Hiera is a configuration data store with pluggable back ends, hiera-mysql is a back end that fetches configuration valus from a MySQL database.  It can be use instead of or along side other back ends.
+Hiera is a configuration data store with pluggable back ends, hiera-mysql is a back end that fetches configuration valus from a MySQL/MariaDB database.  It can be use instead of or along side other back ends.
 
 
 Configuration
