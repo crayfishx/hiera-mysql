@@ -20,7 +20,7 @@
 #
 Puppet::Functions.create_function(:hiera_mysql) do
 
-  if defined?(JRUBY_VERISON)
+  if defined?(JRUBY_VERSION)
     begin
       require 'java'
       require 'jdbc/mysql'
