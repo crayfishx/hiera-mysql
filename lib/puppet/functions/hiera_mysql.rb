@@ -46,6 +46,17 @@ Puppet::Functions.create_function(:hiera_mysql) do
     param 'Puppet::LookupContext', :context
   end
 
+  def is_number? string
+    true if Float(string) rescue false
+  end
+
+  def valid_json?(json)
+    JSON.parse(json)
+    return true
+  rescue JSON::ParserError => e
+    return false
+  end
+
   def mysql_data_hash(options, context)
     context.explain { "data_hash lookup with query: #{options['query']}" }
     results = query(options['query'], context, options)
@@ -111,11 +122,15 @@ Puppet::Functions.create_function(:hiera_mysql) do
 
       while ( res.next ) do
         if numcols < 2
-          data << res.getString(1)
+          data << res.getString(1).to_i if is_number?(res.getString(1))
+          data << JSON.parse(res.getString(1)) if valid_json?(res.getString(1))
+          data << res.getString(1) if !is_number?(res.getString(1)) && !valid_json?(res.getString(1))
         else
           row = {}
           (1..numcols).each do |c|
-            row[md.getColumnName(c)] = res.getString(c)
+            row[md.getColumnName(c)] = res.getString(c).to_i if is_number?(res.getString(c))
+            row[md.getColumnName(c)] = JSON.parse(res.getString(c)) if valid_json?(res.getString(c))
+            row[md.getColumnName(c)] = res.getString(c) if !is_number?(res.getString(c)) && valid_json?(res.getString(c))
           end
           data << row  
         end
