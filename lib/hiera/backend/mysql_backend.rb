@@ -6,7 +6,7 @@ class Hiera
   module Backend
     class Mysql_backend
       def initialize
-        @use_jdbc = defined?(JRUBY_VERSION) ? true : false 
+        @use_jdbc = defined?(JRUBY_VERSION) ? true : false
         if @use_jdbc
           require 'jdbc/mysql'
           require 'java'
@@ -23,6 +23,16 @@ class Hiera
         Hiera.debug("JDBC mode #{@use_jdbc}")
       end
 
+      def is_number? string
+        true if Float(string) rescue false
+      end
+
+      def valid_json?(json)
+        JSON.parse(json)
+        return true
+      rescue JSON::ParserError => e
+        return false
+      end
 
       def lookup(key, scope, order_override, resolution_type)
 
@@ -32,7 +42,7 @@ class Hiera
         answer = nil
 
         # Parse the mysql query from the config, we also pass in key
-        # to extra_data so this can be interpreted into the query 
+        # to extra_data so this can be interpreted into the query
         # string
         #
         queries = [ Config[:mysql][:query] ].flatten
@@ -91,11 +101,15 @@ class Hiera
           while ( res.next ) do
             if numcols < 2
               Hiera.debug("Mysql value : #{res.getString(1)}")
-              data << res.getString(1)
+              data << res.getString(1).to_i if is_number?(res.getString(1))
+              data << JSON.parse(res.getString(1)) if valid_json?(res.getString(1))
+              data << res.getString(1) if !is_number?(res.getString(1)) && !valid_json?(res.getString(1))
             else
               row = {}
               (1..numcols).each do |c|
-                row[md.getColumnName(c)] = res.getString(c)
+                row[md.getColumnName(c)] = res.getString(c).to_i if is_number?(res.getString(c))
+                row[md.getColumnName(c)] = JSON.parse(res.getString(c)) if valid_json?(res.getString(c))
+                row[md.getColumnName(c)] = res.getString(c) if !is_number?(res.getString(c)) && valid_json?(res.getString(c))
               end
               data << row
             end
